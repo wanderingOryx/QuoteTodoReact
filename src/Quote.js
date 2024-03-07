@@ -1,37 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { Box, Button } from "@chakra-ui/react";
 import Layout from "./Layout";
+import QuoteDisplay from "./component/QuoteDisplay";
+import { fetchQuote } from "./services/QuoteService";
 // fix this file Allie
-function FetchQuote({ quoteNum }) {
+function Quote({ quoteNum }) {
   const [quote, setQuote] = useState('');
 
   useEffect(() => {
-      // run quote when  changes
-    const url = `https://jsonplaceholder.typicode.com/todos/${quoteNum}`;
-    getQuote(url);
+    getQuote();
   }, [quoteNum]);
 
-  function getQuote(url) {
-    console.log('Fetching quote...');
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        try {
-          setQuote(data.title);
-        } catch {
-          setQuote('Error getting quote');
-        }
-      });
+  async function getQuote() {
+    try {
+      const quoteText = await fetchQuote(quoteNum);
+      setQuote(quoteText);
+    } catch {
+      setQuote('Quote got Gege\'d');
+    }
   }
 
   return (
-    <p>Quote {quoteNum}: {quote}</p>
+    <QuoteDisplay quoteNum={quoteNum} quote={quote} />
   );
 }
 
-function QuoteCheck() {
+function QuoteAgent() {
   const [showQuote, setShowQuote] = useState(false);
-  const [whichQuote, setWhichQuote] = useState(1);
+  const [quoteNum, setWhichQuote] = useState(1);
 
   //state for showing the fetchQuote 
   const handleButtonClick = (show) => {
@@ -42,6 +38,10 @@ function QuoteCheck() {
     const randomTodo = Math.floor(Math.random() * 200) + 1;
     setWhichQuote(randomTodo);
   };
+  //just gonna use 0 to hit another API just for this app
+  const handleShowStone = () => {
+    setWhichQuote(0);
+  }
 
   return (
     // header , get quote button, hide button, quote that shows, random button
@@ -52,8 +52,9 @@ function QuoteCheck() {
         <br />
         <button onClick={() => handleButtonClick(false)}>Hide Quote</button>
         <br />
-        {showQuote && <FetchQuote quoteNum={whichQuote} />}
+        {showQuote && <Quote quoteNum={quoteNum} />}
         <button onClick={handleRandomizeQuote}>Randomize Quote</button>
+        <button onClick={handleShowStone}>Stone</button>
         <br />
       </Box>
 
@@ -61,4 +62,4 @@ function QuoteCheck() {
   );
 }
 
-export default QuoteCheck;
+export default QuoteAgent;
